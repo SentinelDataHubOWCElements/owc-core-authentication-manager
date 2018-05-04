@@ -1,0 +1,36 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<dom-module id="owc-core-authentication-manager">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]!</h2>
+  </template>
+
+  <script>
+    /**
+     * `owc-core-authentication-manager`
+     * `authentication-manager` component is devoted to inject user credential in each http request performed within OWC application.
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class OwcCoreAuthenticationManager extends Polymer.Element {
+      static get is() { return 'owc-core-authentication-manager'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'owc-core-authentication-manager'
+          }
+        };
+      }
+    }
+
+    window.customElements.define(OwcCoreAuthenticationManager.is, OwcCoreAuthenticationManager);
+  </script>
+</dom-module>
