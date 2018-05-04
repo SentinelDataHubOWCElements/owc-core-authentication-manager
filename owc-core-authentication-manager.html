@@ -8,9 +8,7 @@
       }
     </style>
     <h2>Hello [[prop1]]!</h2>
-
-    <p>Remove template. This is a Service</p>
-
+    
   </template>
 
   <script>
@@ -23,14 +21,83 @@
      * @demo demo/index.html
      */
     class OwcCoreAuthenticationManager extends Polymer.Element {
-      static get is() { return 'owc-core-authentication-manager'; }
+      
+      static get is() { 
+        return 'owc-core-authentication-manager'; 
+      }
+
       static get properties() {
         return {
           prop1: {
             type: String,
             value: 'owc-core-authentication-manager'
+          },
+          ctx: {
+            type: Object,
+            value: {}
+          },
+          _ctx: {
+            type: Object,
+            value: {}
+          },
+          //property to handle logged status
+          logged: {
+            type: Boolean,
+          value: false
+          },
+          username: {
+            type: String,
+            value: ''
+          },
+          password: {
+            type: String,
+            value: ''
           }
         };
+      }
+
+      //Method called when this element is created
+      constructor(){
+        super();
+      }
+
+      /**
+      *   This method verify user's status(loggedIn or loggedOut)
+      *
+      * @return {boolean} true if user credential are stored (logged-in user), false otherwise
+      */
+      //Emulate login function
+      login(){
+        console.log("login successful (sim)");
+        this.logged = true; //state also kept in demo component
+      }
+
+      //Emulate logout function
+      logout(){
+        var self = this;
+        console.log("logout successful (sim)");            
+        this.logged = false; //state also kept in demo component
+      }
+
+      //Expose a method to return the logged status
+      //TODO: Handled by Authentication manager component
+      isLogged(){
+        return this.logged;
+      }
+
+      //check if the user is logged. returns true
+      testAuth(username,password){
+        var self = this;
+        
+        //make http request to dhus with username and password
+        var isAuthenticated = false;
+        
+        if (username == "testuser" && password == "123"){
+          isAuthenticated = true;
+        } else {
+          isAuthenticated = false;
+        }
+        return isAuthenticated;
       }
     }
 

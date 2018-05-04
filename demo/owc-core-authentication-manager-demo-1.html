@@ -1,0 +1,244 @@
+<link rel="import" href="../../polymer/polymer-element.html">
+
+<!--MODULE-->
+<dom-module id="owc-core-authentication-manager-demo-1">
+
+  <!--VIEW-->
+  <template>
+    <!--Internal CSS-->
+    <style is="custom-style">
+        
+        .login-container {
+            margin: 0px;
+        }
+
+        #login-component {
+            @apply(--layout-vertical);
+            height: var(--loginheight, 500px);
+            width: var(--loginwidth, 100%);
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        #user-component {
+            @apply(--layout-vertical);
+            height: var(--loginheight, 500px);
+            width: var(--loginwidth, 100%);
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        #wronglogin {
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            color: rgb(190, 0, 0);
+            word-wrap: break-word;
+            white-space: normal;
+            font-size: 18px;
+        }
+
+        paper-button {
+            background: #002664;
+            color: white;
+            padding: 5px 5px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        paper-button[toggles][active].colorful {
+            background-color: #002664;
+        }
+
+        paper-button[toggles][active][raised].colorful {
+            background-color: rgba(66, 133, 244, 0.75);
+        }
+
+        #signupButton {
+            background: rgb(173, 173, 173) !important;
+        }
+
+        paper-button[toggles][active][raised].signup {
+            background: rgba(173, 173, 173, 0.75) !important;
+        }
+
+        .element-container {
+            margin-top: 10px;
+        }
+
+        .roles {
+            display: flex;
+        }
+
+        .user-badge {
+            color: #373B50;
+            margin-right: 3px;
+            font-size: 16px;
+            margin-top: 3px;
+        }
+
+        .user-h4 {
+            color: #373B50;
+            font-size: 18px;
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .user-h5 {
+            color: #373B50;
+            font-size: 14px;
+            text-align: left;
+            font-weight: normal;
+            margin-bottom: 15px;
+        }
+
+        .user-button {
+            margin-top: 20px;
+        }
+
+        .forgotPassword{
+          text-align: center;
+          padding-top: 10px;
+          padding-bottom: 10px;
+          font-weight: bold;
+          font-size: 14px;
+        }
+
+        .forgotPassword:hover{
+          cursor: pointer;
+          text-decoration: underline;
+        }
+
+        :host {display: block;}
+        .myred{color:green;}
+        .fitter{width: 100%;}
+    </style>
+
+    <!--Demo-1 Template-->
+    <h3 class="myred">[[componentName]]</h3>
+    <div id="test-login-component" hidden$="{{isLogged}}" style="width:200px">
+        <p>AUTHENTICATION MANAGER TEST</p> 
+        <p>Hooks for login component</p>
+        <br>
+        <p>Username</p>
+        <input id="username" label="username" value="{{username::input}}">
+        <p>Password</p>
+        <input id="password" label="password" type="password" value="{{password::input}}">
+        <span id="wronglogin" hidden$="{{!isBadCredentials}}" style="color: red;">wrong login</span>
+        <br>
+        <br>
+        <paper-button raised class="user-button colorful" id="loginButton" on-click="tryLogin" title="Login" style="cursor: pointer;">Login</paper-button>
+      </div>
+  
+      <!--LOGGED-->
+      <div id="logged-component" hidden$="{{!isLogged}}" style="width:200px">
+        <p>Logged functions here</p>
+          <div>
+            <paper-button raised class="user-button colorful" id="logoutButton" on-click="_logout" title="Logout" style="cursor: pointer;">Logout</paper-button>
+          </div>
+      </div>
+  </template>
+
+  <!--SCRIPT-->
+  <script>
+    class OwcCoreAuthenticationManagerDemo1 extends Polymer.Element {
+        static get is() { return 'owc-core-authentication-manager-demo-1'; }
+        static get properties() {
+            return {
+                componentName:{
+                    type: String,
+                    value: 'owc-core-authentication-manager-demo-1'
+                },
+
+                _ctx: {
+                    type: Object,
+                    value: {}
+                },
+                
+                ctx: {
+                    type: Object,
+                    value: {}
+                },
+                
+                isLogged: {
+                    type: Boolean,
+                    value: false
+                },
+
+                isBadCredentials: {
+                    type: Boolean,
+                    value: false
+                },
+
+                username:{
+                    type: String,
+                    value: ""
+                },
+
+                password:{
+                    type: String,
+                    value: ""
+                }
+            };
+        }
+
+        //Method called when this element is created
+        
+        constructor(){
+            super();
+            console.log("Hello from ", this.componentName);
+        }
+        
+
+        //BUTTON HOOKS for login component test component
+        //Login
+        _login(){
+            if (this.isBadCredentials == true) return;
+            this._ctx.am.login();
+            this.isLogged = this.checkLogged();
+        }
+
+        //Logout
+        _logout(){
+            this._ctx.am.logout();
+            this.isLogged = this.checkLogged();
+        }
+
+        //Check if the user is logged, checking the login component logged value
+        checkLogged(){
+            return this._ctx.am.isLogged();
+        }
+
+        //Test Push component
+        _testpush(){
+            var testpush = document.createElement('hello-owc');
+            this._ctx.wm.pushComponent(testpush);
+        }
+
+        toggleBadCredentials(){
+            this.isBadCredentials = !this.isBadCredentials;
+            console.log("toggle bad Credentials", this.isBadCredentials);
+        }
+
+        tryLogin(){
+            //Store username and password on 2 local variables
+            var userInput = this.username;
+            var passwordInput = this.password;
+
+            //CALL A METHOD OF THE AUTHENTICATION MANAGER TO RECEIVE A RESPONSE
+            var auth = this._ctx.am.testAuth(userInput,passwordInput);
+            if(auth == false){
+                this.isBadCredentials = true;
+            } else{
+                this.isBadCredentials = false;
+                console.log("LOGIN SUCCESSFULL");
+                this._login();
+            }
+        }
+    }
+    window.customElements.define(OwcCoreAuthenticationManagerDemo1.is, OwcCoreAuthenticationManagerDemo1);
+  </script>
+</dom-module>
