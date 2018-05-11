@@ -119,6 +119,11 @@
 
     <!--Demo-1 Template-->
     <h3 class="myred">[[componentName]]</h3>
+    
+    <button on-click="checkLogged">AUTH IS LOGGED</button>
+    <button on-click="authmanagerTest">AUTH MANAGER TEST</button>
+    
+       
     <div id="test-login-component" hidden$="{{isLogged}}" style="width:200px">
         <p>AUTHENTICATION MANAGER TEST</p> 
         <p>Hooks for login component</p>
@@ -131,13 +136,14 @@
         <br>
         <br>
         <paper-button raised class="user-button colorful" id="loginButton" on-click="tryLogin" title="Login" style="cursor: pointer;">Login</paper-button>
-      </div>
+
+    </div>
   
       <!--LOGGED-->
       <div id="logged-component" hidden$="{{!isLogged}}" style="width:200px">
         <p>Logged functions here</p>
           <div>
-            <paper-button raised class="user-button colorful" id="logoutButton" on-click="_logout" title="Logout" style="cursor: pointer;">Logout</paper-button>
+            <paper-button raised class="user-button colorful" id="logoutButton" on-click="tryLogout" title="Logout" style="cursor: pointer;">Logout</paper-button>
           </div>
       </div>
   </template>
@@ -158,16 +164,13 @@
                     value: {}
                 },
                 
-                ctx: {
-                    type: Object,
-                    value: {}
-                },
-                
+                //Local variable to set status of UI depending on this variable
                 isLogged: {
                     type: Boolean,
                     value: false
                 },
-
+                
+                //Local varible to show bad credentials message div 
                 isBadCredentials: {
                     type: Boolean,
                     value: false
@@ -186,57 +189,64 @@
         }
 
         //Method called when this element is created
-        
         constructor(){
             super();
-            console.log("Hello from ", this.componentName);
         }
+
+        //REAL Login TEST
+        authmanagerTest(){
+            var self = this;
+            var user = this.username;
+            var pass = this.password;
+            console.log("Auth-Demo trying to authenticate with USERNAME: ", user, " PASSWORD ", pass)
+            self._ctx.am.loginAuthManager(user, pass);
+        }
+
         
-
         //BUTTON HOOKS for login component test component
-        //Login
-        _login(){
-            if (this.isBadCredentials == true) return;
-            this._ctx.am.login();
-            this.isLogged = this.checkLogged();
+        
+        //TRY LOGIN
+        tryLogin(){
+            var self  = this;            
+
+            //Store username and password from input fields on 2 local variables
+            var userInput = this.username;
+            var passwordInput = this.password;
+            
+            //loginResult is true if the login was successful, false anyway
+            var loginResult = this._ctx.am.login(userInput, passwordInput);
+
+            console.log("LOGIN RESULT", loginResult);
+            
+            //set loginresult in a local variable to set the proper UI
+            this.isLogged = loginResult;
+            this.isBadCredentials = !loginResult;
+
+            //Login Successful
+            if(loginResult == true){
+                this._login;
+            } else { //Bad Successful
+                this.tryLogout;
+            }
         }
 
-        //Logout
-        _logout(){
-            this._ctx.am.logout();
-            this.isLogged = this.checkLogged();
+        //TRY LOGOUT
+        tryLogout(){
+            var self = this;
+            var logoutResult = this._ctx.am.logout();
+            
+            //If user is logged out properly, set local proper UI
+            if(logoutResult == true){
+                this.isLogged = !logoutResult; //local variable is the !logout result
+            }
         }
 
         //Check if the user is logged, checking the login component logged value
         checkLogged(){
-            return this._ctx.am.isLogged();
-        }
-
-        //Test Push component
-        _testpush(){
-            var testpush = document.createElement('hello-owc');
-            this._ctx.wm.pushComponent(testpush);
-        }
-
-        toggleBadCredentials(){
-            this.isBadCredentials = !this.isBadCredentials;
-            console.log("toggle bad Credentials", this.isBadCredentials);
-        }
-
-        tryLogin(){
-            //Store username and password on 2 local variables
-            var userInput = this.username;
-            var passwordInput = this.password;
-
-            //CALL A METHOD OF THE AUTHENTICATION MANAGER TO RECEIVE A RESPONSE
-            var auth = this._ctx.am.testAuth(userInput,passwordInput);
-            if(auth == false){
-                this.isBadCredentials = true;
-            } else{
-                this.isBadCredentials = false;
-                console.log("LOGIN SUCCESSFULL");
-                this._login();
-            }
+            var self = this;
+            var result = self._ctx.am.isLogged(); 
+            console.log("Auth-Manager is logged: ",result);
+            return result;
         }
     }
     window.customElements.define(OwcCoreAuthenticationManagerDemo1.is, OwcCoreAuthenticationManagerDemo1);

@@ -8,7 +8,6 @@
       }
     </style>
     <h2>Hello [[prop1]]!</h2>
-    
   </template>
 
   <script>
@@ -31,10 +30,6 @@
           prop1: {
             type: String,
             value: 'owc-core-authentication-manager'
-          },
-          ctx: {
-            type: Object,
-            value: {}
           },
           _ctx: {
             type: Object,
@@ -61,28 +56,118 @@
         super();
       }
 
+      //LOGIN TEST
+      loginAuthManager(username, password){
+        var self = this;
+        
+        var u = username;
+        var p = password;
+
+        console.log("Auth-Manager Try LOGIN with USERNAME: ", u, " PASSWORD: ", p);
+        
+        var loginURL = 'https://scihub.copernicus.eu/demohub/login';
+        var options = {
+            headers: [{
+                name: "Content-Type",
+                value: "application/x-www-form-urlencoded"
+            }, {
+                name: "Authorization",
+                value: ("Basic " + window.btoa(u + ':' + p))
+            }],
+            //body: param({
+            //    "login_username": username,
+            //    "login_password": password
+            //})
+        }
+
+        //HTTP REQUEST USING HTTP MANAGER
+        var a = self._ctx.httpm.sendRequest("POST",loginURL, options);
+        console.log(a);
+      }
+
       /**
       *   This method verify user's status(loggedIn or loggedOut)
       *
       * @return {boolean} true if user credential are stored (logged-in user), false otherwise
       */
-      //Emulate login function
-      login(){
-        console.log("login successful (sim)");
-        this.logged = true; //state also kept in demo component
-      }
-
-      //Emulate logout function
-      logout(){
-        var self = this;
-        console.log("logout successful (sim)");            
-        this.logged = false; //state also kept in demo component
-      }
-
-      //Expose a method to return the logged status
-      //TODO: Handled by Authentication manager component
-      isLogged(){
+      isLogged() {
         return this.logged;
+      }
+
+      /**
+        * This method is used to allow users to perform authentication on the service.
+        * If inserted credentials  are valid, they are stored on session and the request is forwarded to server.
+        * If inserted credential are not valid, an error message is shown to notify user about authentication failure
+        *
+        * @param {string} username: user's username
+        * @param {string} password: user's password
+        * @return {Object} Login request outcome as JavaScript Promise
+        */
+      login(username, password) {
+        console.log("authentication manager login with ", username, " ", password);
+        var self = this;
+        
+
+        var loginURL = 'https://scihub.copernicus.eu/dhus/#/login';
+        var options = {
+            headers: [{
+                name: "Content-Type",
+                value: "application/x-www-form-urlencoded"
+            }, {
+                name: "Authorization",
+                value: ("Basic " + window.btoa(username + ':' + password))
+            }],
+            //body: param({
+            //    "login_username": username,
+            //    "login_password": password
+            //})
+        }
+        
+        var isAuthenticated = false;
+
+        if (username == "testuser" && password == "123"){
+          isAuthenticated = true;
+          this.logged = true
+        } else {
+          isAuthenticated = false;
+          this.logged = false
+        }
+
+        return isAuthenticated;
+
+        //return self.owcApp.httpManager.sendRequest('POST', loginURL, options)
+      }
+
+      //Logout function. Set logged variable to false and return true to indicate that logout was successful
+      logout(){
+        console.log("owc-core-authentication-manager LOGOUT...");            
+        var self = this;
+        this.logged = false; 
+        return true;
+      }
+
+      loginAuth(username, password) {
+          var self = this;
+          
+          console.log("authentication-manager LOGINAUTH TEST with ", username, password);
+
+          
+          
+          var loginURL = "https://scihub.copernicus.eu/demohub/#/login";
+          var options = {
+              headers: [{
+                  name: "Content-Type",
+                  value: "application/x-www-form-urlencoded"
+              }, {
+                  name: "Authorization",
+                  value: ("Basic " + window.btoa(username + ':' + password))
+              }],
+              //body: $.param({
+              //    "login_username": username,
+              //    "login_password": password
+              //})
+          }
+          return self._ctx.httpm.sendRequest('POST', loginURL, options);
       }
 
       //check if the user is logged. returns true
@@ -91,13 +176,50 @@
         
         //make http request to dhus with username and password
         var isAuthenticated = false;
-        
         if (username == "testuser" && password == "123"){
           isAuthenticated = true;
         } else {
           isAuthenticated = false;
         }
+        
         return isAuthenticated;
+        
+        //AUTHENTICATION LOGIC HERE
+        
+        /*
+            //Make an HTTP request with userInput and passwordInput
+            var loginURL = "https://scihub.copernicus.eu/dhus/#/login";
+            var options = {
+                headers: [{
+                    name: "Content-Type",
+                    value: "application/x-www-form-urlencoded"
+                }, {
+                    name: "Authorization",
+                    value: ("Basic " + window.btoa(userInput + ':' + passwordInput))
+                }]
+                /*
+                ,
+                body: $.param({
+                    "login_username": username,
+                    "login_password": password
+                })
+                
+            }
+            return self._ctx.httpm.sendRequest('POST', loginURL, options);
+            */
+            //CALL A METHOD OF THE AUTHENTICATION MANAGER TO RECEIVE A RESPONSE
+            /*
+            var auth = this._ctx.am.testAuth(userInput,passwordInput);
+
+            if(auth == false){
+                this.isBadCredentials = true;
+                console.log("BAD LOGIN");
+            } else{
+                this.isBadCredentials = false;
+                console.log("LOGIN SUCCESSFULL");
+                this._login();
+            }
+            */
       }
     }
 
