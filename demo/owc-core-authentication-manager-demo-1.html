@@ -198,8 +198,8 @@
             var self = this;
             
             //Get Parameter from Input fields
-            var user = this.username;
-            var pass = this.password;
+            var user = self.username;
+            var pass = self.password;
             console.log("Auth-Demo TryLogin. USERNAME: ", user, " PASSWORD ", pass)
 
             //Call authentication-manager login  
@@ -220,19 +220,22 @@
             if(logoutResult == true){
                 self.isLogged = !logoutResult; //local variable is the !logout result
             }
-            console.log("Logout result: ", logoutResult);
         }
 
         //Check if the user is logged, checking the authentication-manager component logged value
         checkLogged(){
             var self = this;
             var result = self._ctx.am.isLogged(); 
-            console.log("I AM LOGGED ",result);
-            
-            self.isLogged = result;
-            self.isBadCredentials = !result; //Set bad Credentials to true is result is false
-            return result;
+            self.setUI(result);
         }
+
+        setUI(logg){
+            var self = this;
+            self.isLogged = logg;
+            self.isBadCredentials = !logg; //Set bad Credentials to true if result is false
+        }
+
+        
     }
     window.customElements.define(OwcCoreAuthenticationManagerDemo1.is, OwcCoreAuthenticationManagerDemo1);
   </script>

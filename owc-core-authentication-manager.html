@@ -113,18 +113,20 @@
           function(result) {
             console.log("LOGIN OK");
             self.logged = true;
+            //TODO: Set owc-core-login-box isLogged property to true;
             return true;
           },
           
           //ERROR
           function(err) {
             console.log("LOGIN ERROR");
+            //TODO: Set owc-core-login-box isLogged property to false;
             self.logged = false;
             return false;
         });
       }
 
-      //Logout function. Set logged variable to false and return true to indicate that logout was successful
+      //LOGOUT function. Set logged variable to false and return true to indicate that logout was successful
       // This method is used to allow users to perform logout.
       logout(){
         var self = this;
