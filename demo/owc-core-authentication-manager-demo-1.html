@@ -117,13 +117,11 @@
         .fitter{width: 100%;}
     </style>
 
-    <!--Demo-1 Template-->
+    <!--Demo-1 Template. Login Component simulation-->
     <h3 class="myred">[[componentName]]</h3>
     
     <button on-click="checkLogged">AUTH IS LOGGED</button>
-    <button on-click="authmanagerTest">AUTH MANAGER TEST</button>
     
-       
     <div id="test-login-component" hidden$="{{isLogged}}" style="width:200px">
         <p>AUTHENTICATION MANAGER TEST</p> 
         <p>Hooks for login component</p>
@@ -193,8 +191,8 @@
             super();
         }
 
-        //REAL Login TEST
-        authmanagerTest(){
+        //Try Login 
+        tryLogin(){
             var self = this;
             var user = this.username;
             var pass = this.password;
@@ -202,10 +200,22 @@
             self._ctx.am.loginAuthManager(user, pass);
         }
 
+        //Try Logout
+        tryLogout(){
+            var self = this;
+            var logoutResult = self._ctx.am.logout();
+            
+            //If user is logged out properly, set local proper UI
+            if(logoutResult == true){
+                this.isLogged = !logoutResult; //local variable is the !logout result
+            }
+        }
+
         
         //BUTTON HOOKS for login component test component
         
         //TRY LOGIN
+        /*
         tryLogin(){
             var self  = this;            
 
@@ -229,17 +239,9 @@
                 this.tryLogout;
             }
         }
+        */
 
-        //TRY LOGOUT
-        tryLogout(){
-            var self = this;
-            var logoutResult = this._ctx.am.logout();
-            
-            //If user is logged out properly, set local proper UI
-            if(logoutResult == true){
-                this.isLogged = !logoutResult; //local variable is the !logout result
-            }
-        }
+
 
         //Check if the user is logged, checking the login component logged value
         checkLogged(){

@@ -63,8 +63,17 @@
         var u = username;
         var p = password;
 
-        console.log("Auth-Manager Try LOGIN with USERNAME: ", u, " PASSWORD: ", p);
+        var a = {
+          "login_username":u,
+          "login_password":p
+        }
+
+        //Construct params
+        var params = Object.keys(a).map(function(k) {
+          return encodeURIComponent(k) + '=' + encodeURIComponent(a[k])
+        }).join('&')
         
+        console.log("Auth-Manager Try LOGIN with USERNAME: ", u, " PASSWORD: ", p);
         var loginURL = 'https://scihub.copernicus.eu/demohub/login';
         var options = {
             headers: [{
@@ -74,15 +83,17 @@
                 name: "Authorization",
                 value: ("Basic " + window.btoa(u + ':' + p))
             }],
-            //body: param({
-            //    "login_username": username,
-            //    "login_password": password
-            //})
+            body: params
         }
 
         //HTTP REQUEST USING HTTP MANAGER
         var a = self._ctx.httpm.sendRequest("POST",loginURL, options);
-        console.log(a);
+        
+        //Check Response
+        
+
+        //console.log(a);
+
       }
 
       /**
