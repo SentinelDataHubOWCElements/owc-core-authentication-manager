@@ -113,37 +113,39 @@
         }
 
         :host {display: block;}
-        .myred{color:green;}
+        .myGreen{color:green;}
         .fitter{width: 100%;}
     </style>
 
     <!--Demo-1 Template. Login Component simulation-->
-    <h3 class="myred">[[componentName]]</h3>
+    <h3 class="myGreen">[[componentName]]</h3>
     
-    <button on-click="checkLogged">AUTH IS LOGGED</button>
+    <button on-click="checkLogged">CHECK LOGGED</button>
+    <div>{{isLogged}}</div>
     
+    <!--NOT LOGGED-->
     <div id="test-login-component" hidden$="{{isLogged}}" style="width:200px">
         <p>AUTHENTICATION MANAGER TEST</p> 
-        <p>Hooks for login component</p>
         <br>
+        
         <p>Username</p>
         <input id="username" label="username" value="{{username::input}}">
         <p>Password</p>
         <input id="password" label="password" type="password" value="{{password::input}}">
+
         <span id="wronglogin" hidden$="{{!isBadCredentials}}" style="color: red;">wrong login</span>
         <br>
         <br>
         <paper-button raised class="user-button colorful" id="loginButton" on-click="tryLogin" title="Login" style="cursor: pointer;">Login</paper-button>
-
     </div>
   
-      <!--LOGGED-->
-      <div id="logged-component" hidden$="{{!isLogged}}" style="width:200px">
+    <!--LOGGED-->
+    <div id="logged-component" hidden$="{{!isLogged}}" style="width:200px">
         <p>Logged functions here</p>
-          <div>
+            <div>
             <paper-button raised class="user-button colorful" id="logoutButton" on-click="tryLogout" title="Logout" style="cursor: pointer;">Logout</paper-button>
           </div>
-      </div>
+    </div>
   </template>
 
   <!--SCRIPT-->
@@ -191,13 +193,22 @@
             super();
         }
 
-        //Try Login 
+        //Try Login with usernme and password in input fields
         tryLogin(){
             var self = this;
+            
+            //Get Parameter from Input fields
             var user = this.username;
             var pass = this.password;
-            console.log("Auth-Demo trying to authenticate with USERNAME: ", user, " PASSWORD ", pass)
-            self._ctx.am.loginAuthManager(user, pass);
+            console.log("Auth-Demo TryLogin. USERNAME: ", user, " PASSWORD ", pass)
+
+            //Call authentication-manager login  
+            self._ctx.am.login(user, pass);
+
+            //Wait 2 seconds before checking if user is logged
+            setTimeout(function() {
+                self.checkLogged();
+            }, 2000);
         }
 
         //Try Logout
@@ -207,47 +218,19 @@
             
             //If user is logged out properly, set local proper UI
             if(logoutResult == true){
-                this.isLogged = !logoutResult; //local variable is the !logout result
+                self.isLogged = !logoutResult; //local variable is the !logout result
             }
+            console.log("Logout result: ", logoutResult);
         }
 
-        
-        //BUTTON HOOKS for login component test component
-        
-        //TRY LOGIN
-        /*
-        tryLogin(){
-            var self  = this;            
-
-            //Store username and password from input fields on 2 local variables
-            var userInput = this.username;
-            var passwordInput = this.password;
-            
-            //loginResult is true if the login was successful, false anyway
-            var loginResult = this._ctx.am.login(userInput, passwordInput);
-
-            console.log("LOGIN RESULT", loginResult);
-            
-            //set loginresult in a local variable to set the proper UI
-            this.isLogged = loginResult;
-            this.isBadCredentials = !loginResult;
-
-            //Login Successful
-            if(loginResult == true){
-                this._login;
-            } else { //Bad Successful
-                this.tryLogout;
-            }
-        }
-        */
-
-
-
-        //Check if the user is logged, checking the login component logged value
+        //Check if the user is logged, checking the authentication-manager component logged value
         checkLogged(){
             var self = this;
             var result = self._ctx.am.isLogged(); 
-            console.log("Auth-Manager is logged: ",result);
+            console.log("I AM LOGGED ",result);
+            
+            self.isLogged = result;
+            self.isBadCredentials = !result; //Set bad Credentials to true is result is false
             return result;
         }
     }

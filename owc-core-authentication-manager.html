@@ -38,15 +38,7 @@
           //property to handle logged status
           logged: {
             type: Boolean,
-          value: false
-          },
-          username: {
-            type: String,
-            value: ''
-          },
-          password: {
-            type: String,
-            value: ''
+            value: false
           }
         };
       }
@@ -56,184 +48,91 @@
         super();
       }
 
-      //LOGIN TEST
-      loginAuthManager(username, password){
-        var self = this;
-        
-        var u = username;
-        var p = password;
-
-        var a = {
-          "login_username":u,
-          "login_password":p
-        }
-
-        //Construct params
-        var params = Object.keys(a).map(function(k) {
-          return encodeURIComponent(k) + '=' + encodeURIComponent(a[k])
-        }).join('&')
-        
-        console.log("Auth-Manager Try LOGIN with USERNAME: ", u, " PASSWORD: ", p);
-        var loginURL = 'https://scihub.copernicus.eu/demohub/login';
-        var options = {
-            headers: [{
-                name: "Content-Type",
-                value: "application/x-www-form-urlencoded"
-            }, {
-                name: "Authorization",
-                value: ("Basic " + window.btoa(u + ':' + p))
-            }],
-            body: params
-        }
-
-        //HTTP REQUEST USING HTTP MANAGER
-        var a = self._ctx.httpm.sendRequest("POST",loginURL, options);
-        
-        //Check Response
-        
-
-        //console.log(a);
-
-      }
-
       /**
       *   This method verify user's status(loggedIn or loggedOut)
       *
       * @return {boolean} true if user credential are stored (logged-in user), false otherwise
       */
       isLogged() {
-        return this.logged;
+        var self = this;
+        console.log("Authentication-manger isLogged(): ", self.logged);
+        return self.logged;
       }
 
       /**
-        * This method is used to allow users to perform authentication on the service.
-        * If inserted credentials  are valid, they are stored on session and the request is forwarded to server.
-        * If inserted credential are not valid, an error message is shown to notify user about authentication failure
-        *
-        * @param {string} username: user's username
-        * @param {string} password: user's password
-        * @return {Object} Login request outcome as JavaScript Promise
-        */
-      login(username, password) {
-        console.log("authentication manager login with ", username, " ", password);
+      * This method is used to allow users to perform authentication on the service.
+      * If inserted credentials  are valid, they are stored on session and the request is forwarded to server.
+      * If inserted credential are not valid, an error message is shown to notify user about authentication failure
+      *
+      * @param {string} username: user's username
+      * @param {string} password: user's password
+      * @return {Object} Login request outcome as JavaScript Promise
+      */
+      login(username, password){
         var self = this;
         
+        //1) Encapsulate username and password in an object
+        var credentials = {
+          "login_username":username,
+          "login_password":password
+        }
 
-        var loginURL = 'https://scihub.copernicus.eu/dhus/#/login';
+        //2) Construct params from credentials
+        var params = Object.keys(credentials).map(function(k) {
+          return encodeURIComponent(k) + '=' + encodeURIComponent(credentials[k])
+        }).join('&')
+        
+        /*3) Prepare request, setting:
+        *     - method  : ("GET", "POST", ...)
+        *     - loginURL: url + mapping
+        *     - options : headers, body (with params)
+        */
+        var method = "POST";
+        var loginURL = 'https://scihub.copernicus.eu/demohub/' + 'login';
         var options = {
             headers: [{
                 name: "Content-Type",
                 value: "application/x-www-form-urlencoded"
             }, {
                 name: "Authorization",
-                value: ("Basic " + window.btoa(username + ':' + password))
+                value: "Basic " + window.btoa(username + ':' + password)
             }],
-            //body: param({
-            //    "login_username": username,
-            //    "login_password": password
-            //})
+            body: params
         }
+        console.log(params);
+
+        //HTTP REQUEST USING HTTP MANAGER
+        var promise = self._ctx.httpm.sendRequest(method,loginURL, options);
         
-        var isAuthenticated = false;
-
-        if (username == "testuser" && password == "123"){
-          isAuthenticated = true;
-          this.logged = true
-        } else {
-          isAuthenticated = false;
-          this.logged = false
-        }
-
-        return isAuthenticated;
-
-        //return self.owcApp.httpManager.sendRequest('POST', loginURL, options)
+        console.log(promise);
+        
+        //Handle Promise Result
+        promise.then(
+          
+          //OK
+          function(result) {
+            console.log("LOGIN OK");
+            self.logged = true;
+            return true;
+          },
+          
+          //ERROR
+          function(err) {
+            console.log("LOGIN ERROR");
+            self.logged = false;
+            return false;
+        });
       }
 
       //Logout function. Set logged variable to false and return true to indicate that logout was successful
+      // This method is used to allow users to perform logout.
       logout(){
+        var self = this;
+        self.logged = false; 
         console.log("owc-core-authentication-manager LOGOUT...");            
-        var self = this;
-        this.logged = false; 
-        return true;
-      }
-
-      loginAuth(username, password) {
-          var self = this;
-          
-          console.log("authentication-manager LOGINAUTH TEST with ", username, password);
-
-          
-          
-          var loginURL = "https://scihub.copernicus.eu/demohub/#/login";
-          var options = {
-              headers: [{
-                  name: "Content-Type",
-                  value: "application/x-www-form-urlencoded"
-              }, {
-                  name: "Authorization",
-                  value: ("Basic " + window.btoa(username + ':' + password))
-              }],
-              //body: $.param({
-              //    "login_username": username,
-              //    "login_password": password
-              //})
-          }
-          return self._ctx.httpm.sendRequest('POST', loginURL, options);
-      }
-
-      //check if the user is logged. returns true
-      testAuth(username,password){
-        var self = this;
-        
-        //make http request to dhus with username and password
-        var isAuthenticated = false;
-        if (username == "testuser" && password == "123"){
-          isAuthenticated = true;
-        } else {
-          isAuthenticated = false;
-        }
-        
-        return isAuthenticated;
-        
-        //AUTHENTICATION LOGIC HERE
-        
-        /*
-            //Make an HTTP request with userInput and passwordInput
-            var loginURL = "https://scihub.copernicus.eu/dhus/#/login";
-            var options = {
-                headers: [{
-                    name: "Content-Type",
-                    value: "application/x-www-form-urlencoded"
-                }, {
-                    name: "Authorization",
-                    value: ("Basic " + window.btoa(userInput + ':' + passwordInput))
-                }]
-                /*
-                ,
-                body: $.param({
-                    "login_username": username,
-                    "login_password": password
-                })
-                
-            }
-            return self._ctx.httpm.sendRequest('POST', loginURL, options);
-            */
-            //CALL A METHOD OF THE AUTHENTICATION MANAGER TO RECEIVE A RESPONSE
-            /*
-            var auth = this._ctx.am.testAuth(userInput,passwordInput);
-
-            if(auth == false){
-                this.isBadCredentials = true;
-                console.log("BAD LOGIN");
-            } else{
-                this.isBadCredentials = false;
-                console.log("LOGIN SUCCESSFULL");
-                this._login();
-            }
-            */
+        return true; //True means that the user properly logged out
       }
     }
-
     window.customElements.define(OwcCoreAuthenticationManager.is, OwcCoreAuthenticationManager);
   </script>
 </dom-module>
