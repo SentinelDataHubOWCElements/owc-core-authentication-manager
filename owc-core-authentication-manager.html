@@ -1,57 +1,16 @@
 <link rel="import" href="../polymer/polymer-element.html">
 
 <dom-module id="owc-core-authentication-manager">
-  <template>
-  </template>
-
+  <template></template>
   <script>
-    /**
-     * `owc-core-authentication-manager`
-     * `authentication-manager` component is devoted to inject user credential in each http request performed within OWC application.
-     *
-     * @customElement
-     * @polymer
-     * @demo demo/index.html
-     */
     class OwcCoreAuthenticationManager extends Polymer.Element {
-
-      static get is() {
-        return 'owc-core-authentication-manager';
-      }
-
+      static get is() { return 'owc-core-authentication-manager'; }
       static get properties() {
         return {
-          _ctx: {
-            type: Object,
-            value: {}
-          },
-
           logged: { //property to handle logged status
-            type: Boolean,
-            value: false
+            type: Boolean, value: false
           }
         };
-      }
-
-      //Method called when this element is created
-      constructor() {
-        super();
-      }
-
-      /**
-      *   This method verify user's status(loggedIn or loggedOut)
-      *
-      * @return {boolean} true if user credential are stored (logged-in user), false otherwise
-      */
-      isLogged() {
-        var self = this;
-        return self.logged;
-      }
-
-      testConnection() {
-        var self = this;
-        var result = self.logged;
-        return result;
       }
 
       /**
@@ -95,33 +54,16 @@
           body: params
         }
 
-        //HTTP REQUEST USING HTTP MANAGER
-        var promise = self._ctx.httpm.sendRequest(method, loginURL, options);
-
-        //Handle Promise Result
-        promise.then(
-
-          //OK
-          function (result) {
+        //4) HTTP REQUEST USING HTTP MANAGER
+        return self._ctx.httpm.sendRequest(method, loginURL, options).then(
+          function (result) { //OK
             self.logged = true;
-            //TODO: Set owc-core-login-box isLogged property to true;
-            return true;
+            return result;
           },
-
-          //ERROR
-          function (err) {
-            //TODO: Set owc-core-login-box isLogged property to false;
+          function (err) { //ERROR
             self.logged = false;
-            return false;
+            return err;
           });
-      }
-
-      //LOGOUT function. Set logged variable to false and return true to indicate that logout was successful
-      // This method is used to allow users to perform logout.
-      logout() {
-        var self = this;
-        self.logged = false;
-        return true; //True means that the user properly logged out
       }
     }
     window.customElements.define(OwcCoreAuthenticationManager.is, OwcCoreAuthenticationManager);
