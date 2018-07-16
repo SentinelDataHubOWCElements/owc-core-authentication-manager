@@ -1,62 +1,16 @@
 <link rel="import" href="../polymer/polymer-element.html">
 
 <dom-module id="owc-core-authentication-manager">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <h2>Hello [[prop1]]!</h2>
-  </template>
-
+  <template></template>
   <script>
-    /**
-     * `owc-core-authentication-manager`
-     * `authentication-manager` component is devoted to inject user credential in each http request performed within OWC application.
-     *
-     * @customElement
-     * @polymer
-     * @demo demo/index.html
-     */
     class OwcCoreAuthenticationManager extends Polymer.Element {
-      
-      static get is() { 
-        return 'owc-core-authentication-manager'; 
-      }
-
+      static get is() { return 'owc-core-authentication-manager'; }
       static get properties() {
         return {
-          prop1: {
-            type: String,
-            value: 'owc-core-authentication-manager'
-          },
-          _ctx: {
-            type: Object,
-            value: {}
-          },
-          //property to handle logged status
-          logged: {
-            type: Boolean,
-            value: false
+          logged: { //property to handle logged status
+            type: Boolean, value: false
           }
         };
-      }
-
-      //Method called when this element is created
-      constructor(){
-        super();
-      }
-
-      /**
-      *   This method verify user's status(loggedIn or loggedOut)
-      *
-      * @return {boolean} true if user credential are stored (logged-in user), false otherwise
-      */
-      isLogged() {
-        var self = this;
-        console.log("Authentication-manger isLogged(): ", self.logged);
-        return self.logged;
       }
 
       /**
@@ -68,71 +22,48 @@
       * @param {string} password: user's password
       * @return {Object} Login request outcome as JavaScript Promise
       */
-      login(username, password){
+      login(username, password) {
         var self = this;
-        
+
         //1) Encapsulate username and password in an object
         var credentials = {
-          "login_username":username,
-          "login_password":password
+          "login_username": username,
+          "login_password": password
         }
 
         //2) Construct params from credentials
-        var params = Object.keys(credentials).map(function(k) {
+        var params = Object.keys(credentials).map(function (k) {
           return encodeURIComponent(k) + '=' + encodeURIComponent(credentials[k])
         }).join('&')
-        
+
         /*3) Prepare request, setting:
         *     - method  : ("GET", "POST", ...)
         *     - loginURL: url + mapping
         *     - options : headers, body (with params)
         */
         var method = "POST";
-        var loginURL = 'https://scihub.copernicus.eu/demohub/' + 'login';
+        var loginURL = 'https://scihub.copernicus.eu/dhus/' + 'login';
         var options = {
-            headers: [{
-                name: "Content-Type",
-                value: "application/x-www-form-urlencoded"
-            }, {
-                name: "Authorization",
-                value: "Basic " + window.btoa(username + ':' + password)
-            }],
-            body: params
+          headers: [{
+            name: "Content-Type",
+            value: "application/x-www-form-urlencoded"
+          }, {
+            name: "Authorization",
+            value: "Basic " + window.btoa(username + ':' + password)
+          }],
+          body: params
         }
-        console.log(params);
 
-        //HTTP REQUEST USING HTTP MANAGER
-        var promise = self._ctx.httpm.sendRequest(method,loginURL, options);
-        
-        console.log(promise);
-        
-        //Handle Promise Result
-        promise.then(
-          
-          //OK
-          function(result) {
-            console.log("LOGIN OK");
+        //4) HTTP REQUEST USING HTTP MANAGER
+        return self._ctx.hm.sendRequest(method, loginURL, options).then(
+          function (result) { //OK
             self.logged = true;
-            //TODO: Set owc-core-login-box isLogged property to true;
-            return true;
+            return result;
           },
-          
-          //ERROR
-          function(err) {
-            console.log("LOGIN ERROR");
-            //TODO: Set owc-core-login-box isLogged property to false;
+          function (err) { //ERROR
             self.logged = false;
-            return false;
-        });
-      }
-
-      //LOGOUT function. Set logged variable to false and return true to indicate that logout was successful
-      // This method is used to allow users to perform logout.
-      logout(){
-        var self = this;
-        self.logged = false; 
-        console.log("owc-core-authentication-manager LOGOUT...");            
-        return true; //True means that the user properly logged out
+            return err;
+          });
       }
     }
     window.customElements.define(OwcCoreAuthenticationManager.is, OwcCoreAuthenticationManager);
