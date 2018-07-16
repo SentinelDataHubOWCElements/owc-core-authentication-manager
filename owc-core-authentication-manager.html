@@ -55,7 +55,7 @@
         }
 
         //4) HTTP REQUEST USING HTTP MANAGER
-        return self._ctx.httpm.sendRequest(method, loginURL, options).then(
+        return self._ctx.hm.sendRequest(method, loginURL, options).then(
           function (result) { //OK
             self.logged = true;
             return result;
