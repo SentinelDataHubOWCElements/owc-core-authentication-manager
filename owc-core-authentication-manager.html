@@ -1,16 +1,20 @@
 <link rel="import" href="../polymer/polymer-element.html">
 
+<!-- @Service -->
 <dom-module id="owc-core-authentication-manager">
   <template></template>
   <script>
     class OwcCoreAuthenticationManager extends Polymer.Element {
       static get is() { return 'owc-core-authentication-manager'; }
       static get properties() {
-        return {
-          logged: { //property to handle logged status
-            type: Boolean, value: false
-          }
+        return {//property to handle logged status
+          logged: { type: Boolean, value: false }
         };
+      }
+
+      ready() {
+        super.ready();
+        this._ctx = ApplicationContext.getInstance().context; //Context Assignment
       }
 
       /**
@@ -31,10 +35,14 @@
           "login_password": password
         }
 
-        //2) Construct params from credentials
-        var params = Object.keys(credentials).map(function (k) {
-          return encodeURIComponent(k) + '=' + encodeURIComponent(credentials[k])
-        }).join('&')
+        //2) Prepare body request with custom values
+        var params = Object
+          .keys(credentials)
+          .map(function (k) {
+            return (
+              encodeURIComponent(k) + '=' + encodeURIComponent(credentials[k]) + '&')
+          })
+          .join('&')
 
         /*3) Prepare request, setting:
         *     - method  : ("GET", "POST", ...)
@@ -42,7 +50,7 @@
         *     - options : headers, body (with params)
         */
         var method = "POST";
-        var loginURL = 'https://scihub.copernicus.eu/dhus/' + 'login';
+        var loginURL = 'https://scihub.copernicus.eu/demohub/' + 'login';
         var options = {
           headers: [{
             name: "Content-Type",
